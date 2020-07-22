@@ -1,4 +1,4 @@
-FROM thecodingmachine/php:7.2-v3-apache
+FROM thecodingmachine/php:7.4-v3-apache-node12
 
 USER root
 

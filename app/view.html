@@ -12,30 +12,31 @@
                 Choose the file and e-mail address
             </div>
             <div class="card-body">
-                <form>
+                <form enctype="multipart/form-data" action="handleForm.php" method="post">
                     <div class="row" style="padding-bottom: 20px" >
                         <div class="col-sm">
-                            <label for="file">Choose epub/mobi file: </label>
+                            <label for="ebook_file">Choose epub/mobi file: </label>
                         </div>
                         <div class="col-sm">
-                            <input type="file" required="true" id="file"/>
+                            <input type="hidden" name="MAX_FILE_SIZE" value="1000000000" />
+                            <input type="file" required="true" id="ebook_file" name="ebook_file"/>
                         </div>
 
                     </div>
                     <div class="row" style="padding-bottom: 20px"s>
                         <div class="col-sm">
-                            <label for="email">Choose e-mail address of your kindle account:</label>
+                            <label for="user_email">Choose e-mail address of your kindle account:</label>
                         </div>
                         <div class="col-sm">
-                            <input type="email" required="true" value="ciastek2808@kindle.com" id="email"/>
+                            <input type="email" required="true" value="ciastek2808@kindle.com" id="user_email" name="user_email"/>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm">
-                            <button class="btn btn-primary">Convert to MOBI and send to kindle</button>
+                            <button class="btn btn-primary" type="submit">Convert to MOBI and send to kindle</button>
                         </div>
                         <div class="col-sm">
-                            <button class="btn btn-primary">Send to kindle</button>
+                            <button class="btn btn-primary" type="submit">Send to kindle</button>
                         </div>
                     </div>
                 </form>

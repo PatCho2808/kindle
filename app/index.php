@@ -1,3 +1,4 @@
 <?php
 
-    require('view.html');
+   require('view.html');
+    //phpinfo();

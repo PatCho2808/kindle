@@ -8,8 +8,7 @@ services:
     ports:
     - "8080:80"
     environment:
-        PHP_EXTENSION_MYSQLI : 0
-        PDO : 0
-        PDO_MYSQL : 0
+        PHP_INI_UPLOAD_MAX_FILESIZE: 25M
+        PHP_INI_POST_MAX_SIZE: 25M
     volumes:
     - ./app:/var/www/html

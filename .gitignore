@@ -1,1 +1,5 @@
 .idea/*
+app/vendor/*
+app/.env
+app/API_KEY.txt
+app/composer.lock
