@@ -1,5 +1,6 @@
 {
     "require": {
-        "cloudconvert/cloudconvert-php": "^3.0"
+        "cloudconvert/cloudconvert-php": "^3.0",
+        "google/apiclient": "^2.0"
     }
 }
