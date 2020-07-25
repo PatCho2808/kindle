@@ -5,21 +5,28 @@ require __DIR__ . '/vendor/autoload.php';
 use \CloudConvert\CloudConvert;
 use \CloudConvert\Models\Job;
 use \CloudConvert\Models\Task;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
-if(!isset($_POST['ebook_file'])|| !isset($_POST['user_email']))
+
+if(!isset($_FILES['ebook_file']) || !isset($_POST['user_email']))
 {
-    header('index.php');
+    header('Location: index.php');
 }
+
+var_dump($_FILES);
+var_dump(is_uploaded_file($_FILES['ebook_file']['tmp_name']));
 
 function convertFile()
 {
     $cloudconvert = new CloudConvert([
-        'api_key' => file_get_contents('API_KEY.txt'),
+        'api_key' => file_get_contents('secrets/API_KEY.txt'),
         'sandbox' => false
     ]);
 
     $job = getJob();
-    convert($cloudconvert, $job);
+    return convert($cloudconvert, $job);
 }
 
 /**
@@ -31,16 +38,18 @@ function convert(CloudConvert $cloudconvert, Job $job)
     try {
         $cloudconvert->jobs()->create($job);
         $uploadTask = $job->getTasks()->name('import_epub')[0];
-        move_uploaded_file($_FILES['ebook_file']['tmp_name'], '/tmp/input/' . $_FILES['ebook_file']['name']);
-        $cloudconvert->tasks()->upload($uploadTask, fopen($_FILES['ebook_file']['name'], 'r'));
+        move_uploaded_file($_FILES['ebook_file']['tmp_name'], '/tmp/' . $_FILES['ebook_file']['name']);
+        $cloudconvert->tasks()->upload($uploadTask, fopen('/tmp/' . $_FILES['ebook_file']['name'], 'r'));
         $cloudconvert->jobs()->wait($job); // Wait for job completion
 
         foreach ($job->getExportUrls() as $file) {
 
             $source = $cloudconvert->getHttpTransport()->download($file->url)->detach();
-            $dest = fopen('/tmp/output/' . $file->filename, 'w');
+            $dest = fopen('/tmp/' . $file->filename, 'w');
 
             stream_copy_to_stream($source, $dest);
+
+            return '/tmp/' . $file->filename;
 
         }
     } catch (Exception $e) {
@@ -71,10 +80,40 @@ function getJob()
     return $job;
 }
 
-function sendFileToKindle()
+function sendMail($path_to_file)
 {
+    $mail = new PHPMailer(true);
 
+    try {
+        //Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      // Enable verbose debug output
+        $mail->isSMTP();                                            // Send using SMTP
+        $mail->Host       = 'smtp.sendgrid.net';                    // Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
+        $mail->Username   = 'apikey';                     // SMTP username
+        $mail->Password   = file_get_contents('secrets/SMTP_KEY.txt');
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;         // Enable TLS encryption; `PHPMailer::ENCRYPTION_SMTPS` encouraged
+        $mail->Port       = 587;                                    // TCP port to connect to, use 465 for `PHPMailer::ENCRYPTION_SMTPS` above
+
+        //Recipients
+        $mail->setFrom('patcho2808@gmail.com');
+        $mail->addAddress('ciastek2808@kindle.com');     // Add a recipient
+        // Attachments
+        $mail->addAttachment($path_to_file);         // Add attachments
+
+        // Content
+        $mail->Subject = 'empty';
+        $mail->Body    = 'empty';
+
+        $mail->send();
+        echo 'Message has been sent';
+    } catch (Exception $e) {
+        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    }
 }
 
-convertFile();
-sendFileToKindle();
+
+$path_to_converted_file = convertFile();
+sendMail($path_to_converted_file);
+
+
