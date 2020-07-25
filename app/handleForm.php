@@ -9,6 +9,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
+session_start();
 
 if(!isset($_FILES['ebook_file']) || !isset($_POST['user_email']))
 {
@@ -50,7 +51,9 @@ function convert(CloudConvert $cloudconvert, Job $job)
 
         }
     } catch (Exception $e) {
-        echo $e->getMessage();
+        $_SESSION['msg'] = 'Unable to convert';
+        $_SESSION['failure'] = true;
+        header('Location: index.php');
     }
 }
 
@@ -93,7 +96,7 @@ function sendMail($path_to_file)
 
         //Recipients
         $mail->setFrom('patcho2808@gmail.com');
-        $mail->addAddress('ciastek2808@kindle.com');     // Add a recipient
+        $mail->addAddress($_POST['user_email']);     // Add a recipient
         // Attachments
         $mail->addAttachment($path_to_file);         // Add attachments
 
@@ -102,9 +105,13 @@ function sendMail($path_to_file)
         $mail->Body    = 'empty';
 
         $mail->send();
+        $_SESSION['msg'] = 'Successfully sent a file. Check your kindle device!';
+        $_SESSION['failure'] = false;
         header('Location: index.php');
     } catch (Exception $e) {
-        echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        $_SESSION['msg'] = 'Unable to sent an email';
+        $_SESSION['failure'] = true;
+        header('Location: index.php');
     }
 }
 
