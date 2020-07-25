@@ -115,8 +115,17 @@ function sendMail($path_to_file)
     }
 }
 
+$path_to_file = '';
+if(isset($_POST['convert_and_send']))
+{
+    $path_to_file = convertFile();
+}
+else
+{
+    $path_to_file = '/tmp/' . $_FILES['ebook_file']['name'];
+    move_uploaded_file($_FILES['ebook_file']['tmp_name'], $path_to_file);
+}
 
-$path_to_converted_file = convertFile();
-sendMail($path_to_converted_file);
+sendMail($path_to_file);
 
 
