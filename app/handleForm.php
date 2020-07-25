@@ -15,9 +15,6 @@ if(!isset($_FILES['ebook_file']) || !isset($_POST['user_email']))
     header('Location: index.php');
 }
 
-var_dump($_FILES);
-var_dump(is_uploaded_file($_FILES['ebook_file']['tmp_name']));
-
 function convertFile()
 {
     $cloudconvert = new CloudConvert([
@@ -85,8 +82,7 @@ function sendMail($path_to_file)
     $mail = new PHPMailer(true);
 
     try {
-        //Server settings
-        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      // Enable verbose debug output
+
         $mail->isSMTP();                                            // Send using SMTP
         $mail->Host       = 'smtp.sendgrid.net';                    // Set the SMTP server to send through
         $mail->SMTPAuth   = true;                                   // Enable SMTP authentication
@@ -106,7 +102,7 @@ function sendMail($path_to_file)
         $mail->Body    = 'empty';
 
         $mail->send();
-        echo 'Message has been sent';
+        header('Location: index.php');
     } catch (Exception $e) {
         echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
     }
